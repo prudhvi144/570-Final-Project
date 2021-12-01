@@ -53,7 +53,7 @@ class Polygon:
         """ Number of vertices """
         return self.vertices.shape[1]
 
-    def plot(self, style):
+    def plot(self, style: str, type: str = "polygon"):
         """
         Plot the polygon using Matplotlib.
         """
@@ -61,6 +61,10 @@ class Polygon:
         x_coords = self.vertices[0, :]
         y_coords = self.vertices[1, :]
         z_coords = self.vertices[2, :]
-        verts = [list(zip(x_coords, y_coords, z_coords))]
-        curr_ax.add_collection3d(
-            Poly3DCollection(verts, edgecolor='k', color=style))
+
+        if type == "polygon":
+            verts = [list(zip(x_coords, y_coords, z_coords))]
+            curr_ax.add_collection3d(
+                Poly3DCollection(verts, edgecolor='k', color=style))
+        else:
+            curr_ax.plot(x_coords, y_coords, z_coords, color=style)

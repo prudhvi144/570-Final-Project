@@ -5,6 +5,7 @@ from Polygon import Polygon
 
 class Plate:
     def __init__(self, radius: float = 5) -> None:
+        self.radius = radius
         x_coords = [
             radius * angle for angle in
             [cos(pi / 6),
