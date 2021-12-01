@@ -67,4 +67,4 @@ class Polygon:
             curr_ax.add_collection3d(
                 Poly3DCollection(verts, edgecolor='k', color=style))
         else:
-            curr_ax.plot(x_coords, y_coords, z_coords, color=style)
+            curr_ax.plot(x_coords, y_coords, z_coords, color=style, zorder=3)

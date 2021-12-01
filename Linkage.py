@@ -22,5 +22,5 @@ class Linkage:
         self.vertices = np.array(list(zip(x_coords, y_coords, z_coords))).T
         self.polygon = Polygon(self.vertices)
 
-    def plot(self, style):
+    def plot(self, style: str = 'b') -> None:
         self.polygon.plot(style, "line")
