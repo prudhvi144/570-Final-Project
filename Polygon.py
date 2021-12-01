@@ -3,17 +3,15 @@
  homework assignment
 """
 
-import numbers
 from math import sin, cos
 import numpy as np
 import matplotlib as plt
 import matplotlib.pyplot as plt
-from scipy.linalg import block_diag
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 
-def rot3d(alpha, beta, gamma):
+def rot3d(alpha: float, beta: float, gamma: float = 0) -> np.ndarray:
     """
     Rotates a point in 3D space where:
         alpha determines x_axis rotation
@@ -41,11 +39,7 @@ def rot3d(alpha, beta, gamma):
          ], [-sin_beta, cos_beta * sin_alpha, cos_beta * cos_alpha]])
 
 
-#3D grid to plot 3d potential planner
-
 # Create the polygons and plot - total 6 poly gotms refer to the figure
-
-
 class Polygon:
     """ Class for plotting, drawing, checking visibility and collision with polygons. """
     def __init__(self, vertices):
@@ -59,26 +53,14 @@ class Polygon:
         """ Number of vertices """
         return self.vertices.shape[1]
 
-    def flip(self):
-        """
-        Reverse the order of the vertices (i.e., transform the polygon from filled in
-        to hollow and viceversa).
-        """
-        self.vertices = np.fliplr(self.vertices)
-
     def plot(self, style):
         """
         Plot the polygon using Matplotlib.
         """
-        if len(style) == 0:
-            style = 'k'
-
-        fig = plt.figure()
-        ax = Axes3D(fig)
-        z = self.vertices[2, :]
-        x = self.vertices[0, :]
-        y = self.vertices[1, :]
-        verts = [list(zip(x, y, z))]
-        print(verts)
-        ax.add_collection3d(Poly3DCollection(verts))
-        plt.show()
+        curr_ax = plt.gca()
+        x_coords = self.vertices[0, :]
+        y_coords = self.vertices[1, :]
+        z_coords = self.vertices[2, :]
+        verts = [list(zip(x_coords, y_coords, z_coords))]
+        curr_ax.add_collection3d(
+            Poly3DCollection(verts, edgecolor='k', color=style))
