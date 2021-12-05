@@ -19,6 +19,7 @@ def main():
     ax.set_zlim3d(zmin=0, zmax=8)
     ax.set_zlabel("Z", fontsize=20)
 
+    # Neckbrace robot with ring radius of 5
     neckbrace = Neckbrace(5)
     neckbrace.plot()
 
