@@ -1,24 +1,45 @@
 from math import pi
+from typing import List
+import numpy as np
 from Plate import Plate
 from Linkage import Linkage
 
 
 class Neckbrace:
-    def __init__(self, plate_radius: float) -> None:
+    def __init__(self,
+                 plate_radius: float,
+                 height: float,
+                 link_angles=List[float]) -> None:
+
+        self._verify(plate_radius, height, link_angles)
+
         self.plate_radius = plate_radius
+        self.height = height
+        self.link_angles = link_angles
+
+        flexible_bodies = [Plate(self.plate_radius, self.height)]
+        flexible_bodies.extend([
+            Linkage(self.plate_radius, self.height, angle)
+            for angle in self.link_angles
+        ])
+
+        # .extend(
+        # [Linkage(self.plate_radius, angle) for angle in self.link_angles])
 
         self.bodies = {
-            "base": Plate(self.plate_radius),
-            "top": Plate(self.plate_radius),
-            "arm_30": Linkage(self.plate_radius, pi / 6),
-            "arm_150": Linkage(self.plate_radius, 5 * pi / 6),
-            "arm_210": Linkage(self.plate_radius, 7 * pi / 6),
-            "arm_330:": Linkage(self.plate_radius, 11 * pi / 6)
+            "rigid": Plate(self.plate_radius, 0),
+            "flexible": flexible_bodies
         }
-        # TODO: Fix kinematic aspect
-        self.bodies['top'].vertices[2, :] = 4 * [4.5]
 
         self.potential = None
+
+    def _verify(self,
+                plate_radius: float,
+                height: float,
+                link_angles=List[float]):
+        assert plate_radius > 0.0, 'Neckbrace radius must be greater than 0.0'
+        assert height > 0.0, 'Neckbrace height must be greater than 0.0'
+        assert len(link_angles) > 0, 'Number of links must be greater than 0'
 
     def perform_exercise(type: str) -> None:
         """
@@ -29,10 +50,16 @@ class Neckbrace:
     def plot(self):
         i = 0
         colors = ['b', 'g']
-        for name, rigid_body in self.bodies.items():
-            if isinstance(rigid_body, Plate):
-                rigid_body.plot(colors[i])
+        for name, parts in self.bodies.items():
+            if name == "rigid":
+                parts.plot(colors[i])
                 i += 1
 
-            if isinstance(rigid_body, Linkage):
-                rigid_body.plot('r')
+            else:
+                for rigid_body in parts:
+                    if isinstance(rigid_body, Plate):
+                        rigid_body.plot(colors[i])
+                        i += 1
+
+                    if isinstance(rigid_body, Linkage):
+                        rigid_body.plot('r')

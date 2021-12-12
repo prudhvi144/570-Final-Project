@@ -1,23 +1,29 @@
-from math import sin, cos, pi
+from math import sin, cos, sqrt, pi
 import numpy as np
 from Polygon import Polygon
 
 
 class Linkage:
-    def __init__(self, radius: float, angle: float) -> None:
-        cos_angle = radius * cos(angle)
-        sin_angle = radius * sin(angle)
-        if cos_angle < 0:
-            distance = -4.5
-        else:
-            distance = 4.5
+    def __init__(self, radius: float, height: float,
+                 link_angle: float) -> None:
+
+        self.link_angle = link_angle
+        self.alpha = pi / 4
+        self.beta = pi / 4
+        self.link_length = sqrt(height**2 / 2)
+
+        cos_angle = radius * cos(self.link_angle)
+        sin_angle = radius * sin(self.link_angle)
 
         x_coords = [
-            cos_angle, cos_angle + (distance * cos(pi / 4)) * sin(pi / 4),
+            cos_angle, cos_angle + (self.link_length * cos(self.link_angle)),
             cos_angle
         ]
-        y_coords = [sin_angle, sin_angle, sin_angle]
-        z_coords = [0, 4.5 * cos(pi / 4) * cos(pi / 4), 4.5]
+        y_coords = [
+            sin_angle, sin_angle + (self.link_length * sin(self.link_angle)),
+            sin_angle
+        ]
+        z_coords = [0, self.link_length * cos(self.alpha), height]
 
         self.vertices = np.array(list(zip(x_coords, y_coords, z_coords))).T
         self.polygon = Polygon(self.vertices)
