@@ -3,10 +3,10 @@ Classes to define potential and potential planner for the sphere world
 """
 
 import numpy as np
-import me570_geometry as gm
+import geometry_final as gm
 from matplotlib import pyplot as plt
 from scipy import io as scio
-import me570_qp as qp
+
 
 class SphereWorld:
     """ Class for loading and plotting a 2-D sphereworld. """
@@ -55,9 +55,6 @@ class SphereWorld:
         plt.ylim([-11, 11])
 
 
-
-
-
 class RepulsiveSphere:
     """ Repulsive potential for a sphere """
     def __init__(self, sphere):
@@ -66,22 +63,22 @@ class RepulsiveSphere:
         """
         self.sphere = sphere
 
-
     def eval(self, x_eval):
         """
         Evaluate the repulsive potential from  sphere at the location x= x_eval. The function returns
     the repulsive potential as given by      (  eq:repulsive  ).
         """
 
-        p1 = gm.Sphere(self.sphere.center,self.sphere.radius,self.sphere.distance_influence)
-        x_eval =x_eval.reshape((-1, 1))
+        p1 = gm.Sphere(self.sphere.center, self.sphere.radius,
+                       self.sphere.distance_influence)
+        x_eval = x_eval.reshape((-1, 1))
         dq = np.array(p1.distance(x_eval))
         rr = np.array(p1.distance_influence)
 
         if dq <= rr:
             if dq <= 0.1:
                 dq = 0.1
-            u_rep = 0.5  * (1.0 / dq - 1.0 / rr) ** 2
+            u_rep = 0.5 * (1.0 / dq - 1.0 / rr)**2
         else:
             u_rep = 0.0
 
@@ -92,20 +89,20 @@ class RepulsiveSphere:
         Compute the gradient of U_ rep for a single sphere, as given by      (  eq:repulsive-gradient
     ).
         """
-        p1 = gm.Sphere(self.sphere.center,self.sphere.radius,self.sphere.distance_influence)
+        p1 = gm.Sphere(self.sphere.center, self.sphere.radius,
+                       self.sphere.distance_influence)
         x_eval = x_eval.reshape((-1, 1))
         dq = np.array(p1.distance(x_eval))
-        dg = np.array(p1.distance_grad(x_eval)).reshape(2,1).T
+        dg = np.array(p1.distance_grad(x_eval)).reshape(2, 1).T
         rr = np.array(p1.distance_influence)
-        grad_u_rep = np.zeros(2).reshape(2,1).T
+        grad_u_rep = np.zeros(2).reshape(2, 1).T
 
         if (dq < rr and dq > 0):
-            grad_u_rep = -((1.0 / dq - 1.0 / rr)*(1/(dq**2))*dg)
+            grad_u_rep = -((1.0 / dq - 1.0 / rr) * (1 / (dq**2)) * dg)
         else:
             grad_u_rep = grad_u_rep
         # print(grad_u_rep)
         return grad_u_rep
-
 
 
 class Attractive:
@@ -116,21 +113,20 @@ class Attractive:
         """
         self.potential = potential
 
-
     def eval(self, x_eval):
         """
         Evaluate the attractive potential  U_ attr at a point  xEval with respect to a goal location
     potential.xGoal given by the formula: If  potential.shape is equal to  'conic', use p=1. If
     potential.shape is equal to  'quadratic', use p=2.
         """
-        ee =x_eval
+        ee = x_eval
         if self.potential['shape'] == 'conic':
             p = 1
-        else :
+        else:
             p = 2
         ppo = np.linalg.norm(x_eval - self.potential['x_goal'][:, 1])
-        dq = (np.linalg.norm(x_eval-self.potential['x_goal'][:,1]))**p
-        u_attr =  dq
+        dq = (np.linalg.norm(x_eval - self.potential['x_goal'][:, 1]))**p
+        u_attr = dq
         return u_attr
 
     def grad(self, x_eval):
@@ -141,40 +137,45 @@ class Attractive:
         """
         if self.potential['shape'] == 'conic':
             p = 1
-        else :
+        else:
             p = 2
-        grad_u_attr= p*(np.linalg.norm(x_eval-self.potential['x_goal'][:,1])**(p-2))*(x_eval-self.potential['x_goal'][:,1])
+        grad_u_attr = p * (np.linalg.norm(x_eval -
+                                          self.potential['x_goal'][:, 1])**
+                           (p - 2)) * (x_eval - self.potential['x_goal'][:, 1])
 
         return grad_u_attr
 
+
 class navigation:
     """ Repulsive potential for a sphere """
-    def __init__(self,world, potential):
+    def __init__(self, world, potential):
         """
         Save the arguments to internal attributes
         """
         self.potential = potential
         self.world = world
-        self._k =16
+        self._k = 16
 
-    def _evaluate_gamma(self,x_eval):
+    def _evaluate_gamma(self, x_eval):
 
-        gamma = np.linalg.norm(x_eval - potential['x_goal'][:, 1]) ** (2 * self._k)
+        gamma = np.linalg.norm(x_eval - potential['x_goal'][:, 1])**(2 *
+                                                                     self._k)
 
         return gamma
 
     @staticmethod
     def _evaluate_beta_i(x_eval, sphere):
-        return np.linalg.norm(x_eval - sphere.center) ** 2 - sphere.radius ** 2
+        return np.linalg.norm(x_eval - sphere.center)**2 - sphere.radius**2
 
     def _evaluate_beta(self, x_eval):
-        beta= -self.world[0].radius**2 - np.linalg.norm(x_eval - self.world[0].center)**2
-        for i in range(1,3):
+        beta = -self.world[0].radius**2 - np.linalg.norm(
+            x_eval - self.world[0].center)**2
+        for i in range(1, 3):
             beta *= self._evaluate_beta_i(x_eval, self.world[i])
 
         return beta
 
-    def _evaluate_alpha(self, x_eval) :
+    def _evaluate_alpha(self, x_eval):
         gamma = self._evaluate_gamma(x_eval)
         beta = self._evaluate_beta(x_eval)
         if abs(beta) < 0.00001:
@@ -184,33 +185,35 @@ class navigation:
 
         return alpha
 
-    def _evaluate_phi(self, x_eval) :
+    def _evaluate_phi(self, x_eval):
         alpha = self._evaluate_alpha(x_eval)
         if alpha < 0:
             return 1
         else:
-            phi = (alpha / (1 + alpha)) ** (1 / self._k)
+            phi = (alpha / (1 + alpha))**(1 / self._k)
 
         return phi
 
-    def evaluate(self, x_eval) :
+    def evaluate(self, x_eval):
         return self._evaluate_phi(x_eval)
 
-    def _evaluate_grad_gamma(self, x_eval) :
+    def _evaluate_grad_gamma(self, x_eval):
         # grad_gamma = 2 * self._k * distance(q, self._goal) ** (2 * self._k - 1) * (q - self._goal) / distance(q,
         #                                                                                                       self._goal)
-        grad_gamma =   (np.linalg.norm(x_eval - self.potential['x_goal'][:, 1]) ** (1- 2)) * (x_eval - self.potential['x_goal'][:, 1])
+        grad_gamma = (np.linalg.norm(x_eval - self.potential['x_goal'][:, 1])
+                      **(1 - 2)) * (x_eval - self.potential['x_goal'][:, 1])
 
         return grad_gamma
 
     def _evaluate_grad_beta(self, x_eval):
-        beta_0 = -self.world[0].radius**2 - np.linalg.norm(x_eval - np.squeeze(self.world[0].center))**2
+        beta_0 = -self.world[0].radius**2 - np.linalg.norm(
+            x_eval - np.squeeze(self.world[0].center))**2
         grad_beta_0 = -2 * (x_eval - np.squeeze(self.world[0].center))
 
         betas = [beta_0]
         grad_betas = [grad_beta_0]
 
-        for i in range(1,3):
+        for i in range(1, 3):
             beta_i = self._evaluate_beta_i(x_eval, self.world[i])
             grad_beta_i = 2 * (x_eval - np.squeeze(self.world[i].center))
 
@@ -234,20 +237,21 @@ class navigation:
         beta = self._evaluate_beta(q)
         grad_gamma = self._evaluate_grad_gamma(q)
         grad_beta = self._evaluate_grad_beta(q)
-        grad_alpha = (grad_gamma * beta - gamma * grad_beta) / beta ** 2
+        grad_alpha = (grad_gamma * beta - gamma * grad_beta) / beta**2
 
         return grad_alpha
 
     def _evaluate_grad_phi(self, q: np.ndarray) -> np.ndarray:
         alpha = self._evaluate_alpha(q)
         grad_alpha = self._evaluate_grad_alpha(q)
-        grad_phi = (1 / self._k) * (alpha / (1 + alpha)) ** ((1 - self._k) / self._k) * (
-                    1 / (1 + alpha) ** 2) * grad_alpha
+        grad_phi = (1 / self._k) * (alpha / (1 + alpha))**(
+            (1 - self._k) / self._k) * (1 / (1 + alpha)**2) * grad_alpha
 
         return grad_phi
 
     def evaluate_gradient(self, q: np.ndarray) -> np.ndarray:
         return self._evaluate_grad_phi(q)
+
 
 class Total:
     """ Combines attractive and repulsive potentials """
@@ -273,7 +277,6 @@ class Total:
         # u_eval = xx.eval(x_eval) + self.potential['repulsiveWeight'] * potRepTot
         # return u_eval
 
-
         # u_attr = np.zeros(1)
         # for sphere in self.world:
         #     u_attr =u_attr + Attractive(self.potential).eval(x_eval)
@@ -283,10 +286,9 @@ class Total:
 
             u_rep = u_rep + RepulsiveSphere(sphere).eval(x_eval)
 
-        u_eval = Attractive(self.potential).eval(x_eval) + self.potential['repulsiveWeight'] * u_rep
+        u_eval = Attractive(self.potential).eval(
+            x_eval) + self.potential['repulsiveWeight'] * u_rep
         return u_eval
-
-
 
     def grad(self, x_eval):
         """
@@ -294,14 +296,14 @@ class Total:
     the variable  potential.repulsiveWeight
         """
 
-
-
         grad_u_rep = np.zeros(2)
         for sphere in self.world:
 
             grad_u_rep = grad_u_rep + RepulsiveSphere(sphere).grad(x_eval)
 
-        grad_u_eval = np.add(Attractive(self.potential).grad(x_eval), self.potential['repulsiveWeight'] * grad_u_rep)
+        grad_u_eval = np.add(
+            Attractive(self.potential).grad(x_eval),
+            self.potential['repulsiveWeight'] * grad_u_rep)
         return grad_u_eval
 
 
@@ -315,8 +317,12 @@ class Planner:
     planner_parameters['nb_steps'] is reached, or when the norm of the vector given by
     planner_parameters['control'] is less than 5 10^-3 (equivalently,  5e-3).
         """
-        p =SphereWorld()
-        potential = {'x_goal': p.x_goal, 'shape': 'conic', 'repulsiveWeight': 1}
+        p = SphereWorld()
+        potential = {
+            'x_goal': p.x_goal,
+            'shape': 'conic',
+            'repulsiveWeight': 1
+        }
         x_goal = np.array(potential['x_goal'])
         nb_steps = planned_parameters['nb_steps']
         epsilon = planned_parameters['epsilon']
@@ -332,20 +338,17 @@ class Planner:
         # u_path = Attractive(potential).eval(x_eval)
         u_path = planned_parameters['U'](x_eval)
         x_path = x_path
-        b =len(x_start)
+        b = len(x_start)
 
         for i in range(nb_steps):
             ug_eval = control(x_eval)
-
-
 
             x_eval = x_eval + epsilon * ug_eval
 
             # print (x_eval)
 
-
             x_path = np.vstack((x_path, x_eval))
-            u_eval = planned_parameters['U'](x_path[i+1])
+            u_eval = planned_parameters['U'](x_path[i + 1])
             u_path = np.vstack((u_path, u_eval))
 
             if np.linalg.norm(u_eval) < 0.0005:
@@ -353,7 +356,6 @@ class Planner:
         print(u_path)
         print(x_path)
         return x_path, u_path
-
 
     def run_plot(self):
         """
@@ -388,53 +390,31 @@ class Planner:
 
         for i in range(m):
 
-                p1 = Planner()
-                x_path,u_path = p1.run(p.x_start[:,i], planned_parameters)
-                x_path = x_path.T
-                plt.subplot(1, 2, 1)
-                plt.plot(x_path[0],x_path[1])
-                plt.subplot(1, 2, 2)
-                plt.plot(u_path)
+            p1 = Planner()
+            x_path, u_path = p1.run(p.x_start[:, i], planned_parameters)
+            x_path = x_path.T
+            plt.subplot(1, 2, 1)
+            plt.plot(x_path[0], x_path[1])
+            plt.subplot(1, 2, 2)
+            plt.plot(u_path)
 
         # plt.xlim([-11, 11])
         # plt.ylim([-11, 11])
         plt.show()
 
 
-
-def clfcbf_control(x_eval, world, potential):
-    """
-    Compute u^* according to      (  eq:clfcbf-qp  ).
-    """
-    x_eval = x_eval.reshape(2,1)
-    p = Attractive(potential)
-    dist_i = np.zeros(1)
-    grad = np.zeros(2)
-
-    uatt = p.eval(x_eval.T[0])
-    uatt_grad = p.grad(x_eval.T[0])
-
-
-    for i in world:
-        q = gm.Sphere(i.center,i.radius,i.distance_influence)
-        grad_d = np.array(q.distance_grad(x_eval)).reshape(2)
-        print(grad_d)
-        g_path = np.vstack((grad, grad_d))
-        dist = q.distance(x_eval)
-        dist_a = np.vstack((dist_i, dist))
-
-    u_opt = qp.qp_supervisor(-g_path,-dist_a, potential['repulsiveWeight'])
-    return u_opt
-
-
 if __name__ == '__main__':
-    p =SphereWorld()
+    p = SphereWorld()
     potential = {'x_goal': p.x_goal, 'shape': 'conic', 'repulsiveWeight': 0.05}
 
     p2 = Total(p.world, potential)
     # print(p.world[0])
-    planned_parameters = {'nb_steps': 1900, 'epsilon': 0.01, 'U': lambda x: p2.eval(x),
-                          'control': lambda x: -p2.grad(x)}
+    planned_parameters = {
+        'nb_steps': 1900,
+        'epsilon': 0.01,
+        'U': lambda x: p2.eval(x),
+        'control': lambda x: -p2.grad(x)
+    }
 
     # for i in len(potential['x_goal']):
     p1 = Planner()
@@ -443,10 +423,9 @@ if __name__ == '__main__':
     sphere = gm.Sphere(2 * np.ones((2, 1)), -2, 3)
 
     for sphere in (p.world):
-       sphere = gm.Sphere(sphere.center, sphere.radius, sphere.distance_influence)
-       f_handle = lambda x: p2.eval(x.T[0])
-       gm.field_plot_threshold(f_handle, 100)
-
+        sphere = gm.Sphere(sphere.center, sphere.radius,
+                           sphere.distance_influence)
+        f_handle = lambda x: p2.eval(x.T[0])
+        gm.field_plot_threshold(f_handle, 100)
 
     plt.show()
-

@@ -8,6 +8,7 @@ import numpy as np
 from matplotlib import cm, pyplot as plt
 import math
 
+
 def numel(var):
     """
     Counts the number of entries in a numpy array, or returns 1 for fundamental numerical
@@ -23,11 +24,14 @@ def numel(var):
         breakpoint()
         raise NotImplementedError(f'number of elements for type {type(var)}')
     return size
+
+
 def rot2d(theta):
     """
     Create a 2-D rotation matrix from the angle  theta according to (1).
     """
-    rot_theta = ([[np.cos(theta), -np.sin(theta)],[np.sin(theta), np.cos(theta)]])
+    rot_theta = ([[np.cos(theta), -np.sin(theta)],
+                  [np.sin(theta), np.cos(theta)]])
     return rot_theta
 
 
@@ -37,8 +41,8 @@ def line_linspace(a_line, b_line, t_min, t_max, nb_points):
     """
 
     t = np.linspace(t_min, t_max, num=nb_points)
-    x = np.matmul((np.array(a_line)),[t])
-    y= np.matmul(np.array(b_line),[np.ones(nb_points)])
+    x = np.matmul((np.array(a_line)), [t])
+    y = np.matmul(np.array(b_line), [np.ones(nb_points)])
     theta_points = x + y
     return theta_points
 
@@ -99,7 +103,6 @@ class Torus:
         """
         self.theta = theta
 
-
     def phi(self, theta):
         """
         Implements equation (eq:chartTorus).
@@ -121,15 +124,15 @@ class Torus:
         t_e = np.hstack([t_e1, t_e2])
         t_c = np.arange(8, 26, 1)
 
-        a = (np.array((2. * math.pi) / nb_grid)).dot(np.arange(1,33))
-        b = (np.array((2. * math.pi) / nb_grid)).dot(np.arange(1,33))
+        a = (np.array((2. * math.pi) / nb_grid)).dot(np.arange(1, 33))
+        b = (np.array((2. * math.pi) / nb_grid)).dot(np.arange(1, 33))
         grid = Grid(a, b)
         fun_eval = grid.eval(fun)
         [xx_grid, yy_grid] = grid.mesh()
 
-        a1 = (np.array((2.*math.pi)/nb_grid)).dot(t_e)
-        b1 = (np.array((2.*math.pi)/nb_grid)).dot(t_e)
-        grid1 = Grid(a1,b1)
+        a1 = (np.array((2. * math.pi) / nb_grid)).dot(t_e)
+        b1 = (np.array((2. * math.pi) / nb_grid)).dot(t_e)
+        grid1 = Grid(a1, b1)
         fun_eval1 = grid1.eval(fun)
         [xx_grid, yy_grid] = grid1.mesh()
 
@@ -149,13 +152,28 @@ class Torus:
         fun_eval4 = grid4.eval(fun)
         fig = plt.figure()
         axis = fig.add_subplot(111, projection='3d')
-        axis.plot_surface(fun_eval1[:,:,0], fun_eval1[:,:,1], fun_eval1[:,:,2],color='r',alpha=1)
-        axis.plot_surface(fun_eval2[:, :, 0], fun_eval1[:, :, 1], fun_eval1[:, :, 2], color='b', alpha=1)
-        axis.plot_surface(fun_eval3[:, :, 0], fun_eval1[:, :, 1], fun_eval1[:, :, 2], color='y',alpha=0.3)
-        axis.plot_surface(fun_eval4[:, :, 0], fun_eval1[:, :, 1], fun_eval1[:, :, 2], color='green', alpha=0.5)
+        axis.plot_surface(fun_eval1[:, :, 0],
+                          fun_eval1[:, :, 1],
+                          fun_eval1[:, :, 2],
+                          color='r',
+                          alpha=1)
+        axis.plot_surface(fun_eval2[:, :, 0],
+                          fun_eval1[:, :, 1],
+                          fun_eval1[:, :, 2],
+                          color='b',
+                          alpha=1)
+        axis.plot_surface(fun_eval3[:, :, 0],
+                          fun_eval1[:, :, 1],
+                          fun_eval1[:, :, 2],
+                          color='y',
+                          alpha=0.3)
+        axis.plot_surface(fun_eval4[:, :, 0],
+                          fun_eval1[:, :, 1],
+                          fun_eval1[:, :, 2],
+                          color='green',
+                          alpha=0.5)
         # axis.plot_wireframe(fun_eval[:, :, 0], fun_eval[:, :, 1], fun_eval[:, :, 2],color='black')
         plt.show()
-
 
     def phi_push_curve(self, a_line, b_line):
         """
@@ -165,11 +183,11 @@ class Torus:
         and a, b as given in the input arguments.
         xPoints = torus_phi(line_linspace(a,b,0,1,31));
         """
-        x_points =[]
+        x_points = []
         x = line_linspace(a_line, b_line, 0, 1, 31)
         for i in range(31):
 
-           x_points.append(self.phi(x[:,i]))
+            x_points.append(self.phi(x[:, i]))
 
         return x_points
 
@@ -207,14 +225,19 @@ class Torus:
         print(fun_eval.shape)
         [xx_grid, yy_grid] = grid.mesh()
 
-        axis.plot_wireframe(fun_eval[:, :, 0], fun_eval[:, :, 1], fun_eval[:, :, 2],color='black')
-        axis.scatter(arr[0], arr[1], arr[2],zdir='z', s=31, c='r',
-                              edgecolors='black', antialiased=False)
+        axis.plot_wireframe(fun_eval[:, :, 0],
+                            fun_eval[:, :, 1],
+                            fun_eval[:, :, 2],
+                            color='black')
+        axis.scatter(arr[0],
+                     arr[1],
+                     arr[2],
+                     zdir='z',
+                     s=31,
+                     c='r',
+                     edgecolors='black',
+                     antialiased=False)
         plt.show()
-
-
-
-
 
 
 class Polygon:
@@ -245,14 +268,14 @@ class Polygon:
             style = 'k'
 
         directions = np.diff(self.vertices_loop)
-        plt.fill(self.vertices[0, :],self.vertices[1, :],'silver')
+        plt.fill(self.vertices[0, :], self.vertices[1, :], 'silver')
 
         plt.quiver(self.vertices[0, :],
                    self.vertices[1, :],
                    directions[0, :],
                    directions[1, :],
                    color=style,
-                   width =0.003,
+                   width=0.003,
                    angles='xy',
                    scale_units='xy',
                    scale=1.)
@@ -366,6 +389,8 @@ class Polygon:
             ]
         flag_points = [not flag for flag in flag_points]
         return flag_points
+
+
 class Edge:
     """ Class for storing edges and checking collisions among them. """
     def __init__(self, vertices):
@@ -464,6 +489,7 @@ def angle(vertex0, vertex1, vertex2, angle_type='signed'):
 
     return edge_angle
 
+
 def clip(val, threshold):
     """
     If val is a scalar, threshold its value; if it is a vector, normalized it
@@ -499,10 +525,7 @@ def field_plot_threshold(f_handle, threshold=10, nb_grid=160):
         # scalar field
         fig = plt.gcf()
         axis = fig.add_subplot(111, projection='3d')
-        plt.contour(xx_mesh,
-                          yy_mesh,
-                          f_eval.transpose(),
-                          cmap=cm.gnuplot2)
+        plt.contour(xx_mesh, yy_mesh, f_eval.transpose(), cmap=cm.gnuplot2)
         # axis.plot_surface(xx_mesh,
         #                   yy_mesh,
         #                   f_eval.transpose(),
@@ -544,6 +567,7 @@ class Sphere:
         """
         # Get current axes
         ax = plt.gca()
+        ax.axis('equal')
         # Add circle as a patch
         if self.radius > 0:
             # Circle is filled in
@@ -573,14 +597,14 @@ class Sphere:
     the sphere is hollow or filled in.
         """
         num_of_points = len(points) - 1
-        d_points_sphere =[]
+        d_points_sphere = []
         for i in range(num_of_points):
-            dist = np.hypot(self.center[1] - points[:,i][1], self.center[0] - points[:,i][0])
-            d_points_sphere.append (dist - abs(self.radius))
+            dist = np.hypot(self.center[1] - points[:, i][1],
+                            self.center[0] - points[:, i][0])
+            d_points_sphere.append(dist - abs(self.radius))
 
         if self.radius <= 0:
-            d_points_sphere = np.multiply(-1,d_points_sphere)
-
+            d_points_sphere = np.multiply(-1, d_points_sphere)
 
         return np.array(d_points_sphere)
 
@@ -593,14 +617,15 @@ class Sphere:
         grad_d_points_sphere = []
 
         for i in range(num_of_points):
-            if (self.center[0] == points[:,i][0] and self.center[1] == points[:,i][1]):
-                grad_d_points_sphere = [0,0]
-            else :
-                dist = np.hypot(self.center[1] - points[:,i][1], self.center[0] - points[:,i][0])
-                grad_d_points_sphere.append((points - self.center)/dist)
-            ccc =self.radius
+            if (self.center[0] == points[:, i][0]
+                    and self.center[1] == points[:, i][1]):
+                grad_d_points_sphere = [0, 0]
+            else:
+                dist = np.hypot(self.center[1] - points[:, i][1],
+                                self.center[0] - points[:, i][0])
+                grad_d_points_sphere.append((points - self.center) / dist)
+            ccc = self.radius
             if self.radius <= 0:
-                grad_d_points_sphere = np.multiply(-1,grad_d_points_sphere)
+                grad_d_points_sphere = np.multiply(-1, grad_d_points_sphere)
 
         return grad_d_points_sphere
-

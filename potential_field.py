@@ -10,16 +10,25 @@ from navigation_function import NavigationFunction2D
 
 
 class PotentialField2D:
-
-    def __init__(self, goal: np.ndarray, workspace: CircleObstacle, obstacles: List[CircleObstacle], eta: float = .1,
-                 zeta: float = .1, quadratic_radius: float = 10, default_epsilon: float = .1, k: int = None,):
+    def __init__(
+        self,
+        goal: np.ndarray,
+        workspace: CircleObstacle,
+        obstacles: List[CircleObstacle],
+        eta: float = .1,
+        zeta: float = .1,
+        quadratic_radius: float = 10,
+        default_epsilon: float = .1,
+        k: int = None,
+    ):
         self._goal, self._eta, self._zeta, self._dstar, self._epsilon = \
             self._verify(goal, eta, zeta, quadratic_radius, default_epsilon)
         self._workspace = workspace
         self._obstacles = obstacles
 
         if k is not None:
-            self._navigation_function = NavigationFunction2D(self._goal, self._workspace, self._obstacles, k)
+            self._navigation_function = NavigationFunction2D(
+                self._goal, self._workspace, self._obstacles, k)
         else:
             self._navigation_function = None
 
@@ -49,14 +58,16 @@ class PotentialField2D:
         if d2circle < EPS:
             u_rep += LARGE
         elif abs(d2circle) <= self._workspace.safe_distance:
-            u_rep += .5 * self._eta * ((1 / d2circle) - (1 / self._workspace.safe_distance)) ** 2
+            u_rep += .5 * self._eta * ((1 / d2circle) -
+                                       (1 / self._workspace.safe_distance))**2
 
         for circle in self._obstacles:
             d2circle = circle_distance(q, circle)
             if d2circle < EPS:
                 u_rep += LARGE
             elif d2circle <= circle.safe_distance:
-                u_rep += .5 * self._eta * ((1 / d2circle) - (1 / circle.safe_distance))**2
+                u_rep += .5 * self._eta * ((1 / d2circle) -
+                                           (1 / circle.safe_distance))**2
 
         return u_rep
 
@@ -78,7 +89,9 @@ class PotentialField2D:
             if d2circle < EPS:
                 grad_u_rep += LARGE * grad_circle_distance
             elif d2circle <= circle.safe_distance:
-                grad_u_rep += self._eta * ((1 / circle.safe_distance) - (1 / d2circle)) * (1 / d2circle)**2 * grad_circle_distance
+                grad_u_rep += self._eta * (
+                    (1 / circle.safe_distance) -
+                    (1 / d2circle)) * (1 / d2circle)**2 * grad_circle_distance
 
         return grad_u_rep
 
@@ -95,7 +108,10 @@ class PotentialField2D:
 
         return grad
 
-    def calculate_path(self, start: np.ndarray, max_steps: int = 1000, epsilon: float = None) -> np.ndarray:
+    def calculate_path(self,
+                       start: np.ndarray,
+                       max_steps: int = 1000,
+                       epsilon: float = None) -> np.ndarray:
         epsilon = self._epsilon if epsilon is None else epsilon
 
         path = np.zeros((max_steps, 2))
@@ -108,7 +124,9 @@ class PotentialField2D:
 
         return path[:step]
 
-    def _evaluate_potential_on_grid(self, xx: np.ndarray, yy: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def _evaluate_potential_on_grid(
+            self, xx: np.ndarray,
+            yy: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         zz_attr, zz_rep, zz_nav = [], [], []
         for qx, qy in zip(xx.ravel(), yy.ravel()):
             q = np.array([qx, qy])
@@ -135,7 +153,7 @@ class PotentialField2D:
         zz = zz_attr + zz_rep + zz_nav
         zz[zz > ceiling] = ceiling
 
-        fig = plt.figure()
+        fig = plt.figure("Potential Surface")
         ax = fig.add_subplot(111, projection='3d')
         ax.plot_surface(xx, yy, zz)
         ax.set_xlabel('X')
@@ -151,7 +169,7 @@ class PotentialField2D:
         zz = zz_attr + zz_rep + zz_nav
         zz[zz > ceiling] = ceiling
 
-        fig = plt.figure()
+        fig = plt.figure("Potential Contour")
         ax = fig.add_subplot(111)
         ax.contour(xx, yy, zz, 50)
         ax.set_aspect('equal', 'box')
@@ -181,7 +199,8 @@ class PotentialField2D:
         zz = zz_attr + zz_rep + zz_nav
         zz[zz > ceiling] = ceiling
 
-        fig = plt.figure()
+        fig = plt.figure("Path on Surface")
+
         ax = fig.add_subplot(111, projection='3d')
         ax.plot_wireframe(xx, yy, zz)
         ax.set_xlabel('X')
@@ -199,7 +218,8 @@ class PotentialField2D:
                 for i in range(path.shape[0]):
                     z_attr = self._evaluate_repulsive_potential(path[i, :2])
                     z_rep = self._evaluate_attractive_potential(path[i, :2])
-                    z_nav = self._navigation_function.evaluate(path[i, :2]) if self._navigation_function else 0
+                    z_nav = self._navigation_function.evaluate(
+                        path[i, :2]) if self._navigation_function else 0
                     path[i, 2] = z_attr + z_rep + z_nav
 
                 c = i % len(colors)
@@ -211,7 +231,8 @@ class PotentialField2D:
             for i in range(path.shape[0]):
                 z_attr = self._evaluate_repulsive_potential(path[i, :2])
                 z_rep = self._evaluate_attractive_potential(path[i, :2])
-                z_nav = self._navigation_function.evaluate(path[i, :2]) if self._navigation_function else 0
+                z_nav = self._navigation_function.evaluate(
+                    path[i, :2]) if self._navigation_function else 0
                 path[i, 2] = z_attr + z_rep + z_nav
             ax.plot(path[:, 0], path[:, 1], path[:, 2], '-r', lw=3)
 
@@ -223,7 +244,7 @@ class PotentialField2D:
         zz = zz_attr + zz_rep + zz_nav
         zz[zz > ceiling] = ceiling
 
-        fig = plt.figure()
+        fig = plt.figure("Path on Contour")
         ax = fig.add_subplot(111)
         ax.contour(xx, yy, zz, 50)
         ax.set_aspect('equal', 'box')
@@ -249,15 +270,21 @@ class PotentialField2D:
 
 if __name__ == '__main__':
     obstacles_ = [
-        CircleObstacle(np.array([0.,0]), 2, safe_distance=2),
-
+        CircleObstacle(np.array([0., 0]), 2, safe_distance=3),
     ]
-    workspace = CircleObstacle(np.array([0., 0.]), 6, safe_distance=2)
+    workspace = CircleObstacle(np.array([0., 0.]), 6, safe_distance=3)
     goal = np.array([5., 0.])
 
-    potential_field = PotentialField2D(np.array(goal), workspace, obstacles_, eta=1, zeta=.1, quadratic_radius=1)
+    potential_field = PotentialField2D(np.array(goal),
+                                       workspace,
+                                       obstacles_,
+                                       eta=1,
+                                       zeta=.15,
+                                       quadratic_radius=1)
+
     potential_field.plot_path_on_contour(np.array([[-4, .1]]), epsilon=1)
-    potential_field.plot_path_on_surface(np.array([0, 0.]), epsilon=1)
-    potential_field.plot_potential_surface(np.arange(-13, 13, .05), np.arange(-13, 13, .05))
-    potential_field.plot_potential_contour(np.arange(-13, 13, .05), np.arange(-13, 13, .05))
+    # potential_field.plot_potential_surface(np.arange(-13, 13, .05),
+    #                                        np.arange(-13, 13, .05))
+    potential_field.plot_potential_contour(np.arange(-13, 13, .05),
+                                           np.arange(-13, 13, .05))
     plt.show()

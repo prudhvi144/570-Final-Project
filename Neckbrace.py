@@ -95,16 +95,16 @@ class Neckbrace:
         self.bodies['rigid'].plot('b')
         for type, polygon in transformed_polygons:
             if type == Plate.__name__:
+                self.bodies['flexible'][0].plot_normal()
                 polygon.plot('g')
             else:
                 polygon.plot('r', "line")
 
-        return self.get_joint_angles()
-
-    def kinematic_map(self, theta: np.ndarray) -> List[Tuple[str, Polygon]]:
+    def kinematic_map(
+            self, theta: np.ndarray) -> List[Tuple[str, Polygon, np.ndarray]]:
         return [part.kinematic_map(theta) for part in self.bodies['flexible']]
 
-    def get_joint_angles(self) -> np.ndarray:
+    def get_joint_angles(self, path: np.ndarray) -> np.ndarray:
         angles = np.array([[], [], []])
 
         for part in self.bodies['flexible']:

@@ -23,20 +23,21 @@ def main():
     # Neckbrace robot with ring radius of 5
     neckbrace = Neckbrace(5, 4.5,
                           [pi / 6, 5 * pi / 6, 7 * pi / 6, 11 * pi / 6])
-    print(neckbrace.plot(np.vstack((pi / 16, 0))))
-    plt.show()
+    # neckbrace.plot(np.vstack((pi / 16, pi / 16)))
+    # plt.show()
 
-    # step_1 = np.linspace(pi / 24, 0, 5, endpoint=False)
-    # step_2 = np.linspace(0, -pi / 24, 5, endpoint=False)
-    # step_3 = np.linspace(-pi / 24, 0, 5, endpoint=False)
-    # step_4 = np.linspace(0, pi / 24, 5)
+    div_pi_by = 18
+    step_1 = np.linspace(pi / div_pi_by, 0, 5, endpoint=False)
+    step_2 = np.linspace(0, -pi / div_pi_by, 5, endpoint=False)
+    step_3 = np.linspace(-pi / div_pi_by, 0, 5, endpoint=False)
+    step_4 = np.linspace(0, pi / div_pi_by, 5)
 
-    # positions = np.hstack((step_1, step_2, step_3, step_4))
-    # positions = np.vstack((positions, np.roll(positions, 5)))
+    positions = np.hstack((step_1, step_2, step_3, step_4))
+    positions = np.vstack((positions, np.roll(positions, 5)))
 
-    # azimuth = -84
-    # elevation = 6
-    # neckbrace.animate(positions, "my_test_gif.gif", azimuth, elevation)
+    azimuth = -84
+    elevation = 6
+    neckbrace.animate(positions, "normal_first.gif", azimuth, elevation)
 
 
 if __name__ == "__main__":
