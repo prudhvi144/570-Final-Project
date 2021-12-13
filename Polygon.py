@@ -4,6 +4,7 @@
 """
 
 from math import sin, cos
+from operator import xor
 import numpy as np
 import matplotlib as plt
 import matplotlib.pyplot as plt
@@ -25,6 +26,15 @@ def rot3d(alpha: float, beta: float, gamma: float = 0) -> np.ndarray:
     cos_alpha = cos(alpha)
     cos_beta = cos(beta)
     cos_gamma = cos(gamma)
+
+    # R_x = np.array([[1, 0, 0], [0, cos_alpha, -sin_alpha],
+    #                 [0, sin_alpha, cos_alpha]])
+    # R_y = np.array([[cos_beta, 0, sin_beta], [0, 1, 0],
+    #                 [-sin_beta, 0, cos_beta]])
+    # R_z = np.array([[cos_gamma, -sin_gamma, 0], [sin_gamma, cos_gamma, 0],
+    #                 [0, 0, 1]])
+
+    # return R_z @ R_y @ R_x
 
     return np.array(
         [[
@@ -62,9 +72,12 @@ class Polygon:
         y_coords = self.vertices[1, :]
         z_coords = self.vertices[2, :]
 
+        curr_ax.set_box_aspect([1, 1, 1])
+
         if type == "polygon":
             verts = [list(zip(x_coords, y_coords, z_coords))]
             curr_ax.add_collection3d(
                 Poly3DCollection(verts, edgecolor='k', color=style))
+            # curr_ax.scatter(0, 0, 4.5, c='m', zorder=20)
         else:
             curr_ax.plot(x_coords, y_coords, z_coords, color=style, zorder=3)

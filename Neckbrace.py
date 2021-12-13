@@ -1,8 +1,13 @@
 from math import pi
-from typing import List
+from os import remove
+from typing import List, Tuple
 import numpy as np
+import matplotlib.pyplot as plt
+import imageio
+from numpy.lib.function_base import angle
 from Plate import Plate
 from Linkage import Linkage
+from Polygon import Polygon
 
 
 class Neckbrace:
@@ -36,10 +41,44 @@ class Neckbrace:
     def _verify(self,
                 plate_radius: float,
                 height: float,
-                link_angles=List[float]):
+                link_angles=List[float]) -> None:
         assert plate_radius > 0.0, 'Neckbrace radius must be greater than 0.0'
         assert height > 0.0, 'Neckbrace height must be greater than 0.0'
         assert len(link_angles) > 0, 'Number of links must be greater than 0'
+
+    def animate(self, angles: np.ndarray, output_file: str, azimuth: float,
+                elevation: float) -> None:
+        filenames = []
+        frame = 0
+        for angle in angles.T:
+            filename = f"./figures/{frame}.png"
+            frame += 1
+            filenames.append(filename)
+
+            ax = plt.gca()
+            ax.set_xlim3d(xmin=-7, xmax=7)
+            ax.set_xlabel("X", fontsize=20)
+
+            ax.set_ylim3d(ymin=-7, ymax=7)
+            ax.set_ylabel("Y", fontsize=20)
+
+            ax.set_zlim3d(zmin=0, zmax=14)
+            ax.set_zlabel("Z", fontsize=20)
+
+            angle = angle.reshape(-1, 1)
+            self.plot(angle)
+
+            ax.view_init(elev=elevation, azim=azimuth)
+            plt.savefig(filename)
+            plt.cla()
+
+        with imageio.get_writer(output_file, mode='I') as writer:
+            for name in filenames:
+                image = imageio.imread(name)
+                writer.append_data(image)
+
+        for name in filenames:
+            remove(name)
 
     def perform_exercise(type: str) -> None:
         """
@@ -47,19 +86,30 @@ class Neckbrace:
         """
         pass
 
-    def plot(self):
-        i = 0
-        colors = ['b', 'g']
-        for name, parts in self.bodies.items():
-            if name == "rigid":
-                parts.plot(colors[i])
-                i += 1
+    def plot(
+        self,
+        theta: np.ndarray,
+    ) -> np.ndarray:
+        transformed_polygons = self.kinematic_map(theta)
 
+        self.bodies['rigid'].plot('b')
+        for type, polygon in transformed_polygons:
+            if type == Plate.__name__:
+                polygon.plot('g')
             else:
-                for rigid_body in parts:
-                    if isinstance(rigid_body, Plate):
-                        rigid_body.plot(colors[i])
-                        i += 1
+                polygon.plot('r', "line")
 
-                    if isinstance(rigid_body, Linkage):
-                        rigid_body.plot('r')
+        return self.get_joint_angles()
+
+    def kinematic_map(self, theta: np.ndarray) -> List[Tuple[str, Polygon]]:
+        return [part.kinematic_map(theta) for part in self.bodies['flexible']]
+
+    def get_joint_angles(self) -> np.ndarray:
+        angles = np.array([[], [], []])
+
+        for part in self.bodies['flexible']:
+            if isinstance(part, Linkage):
+                link, alpha, beta = part.get_joint_angles()
+                angles = np.hstack((angles, np.vstack((link, alpha, beta))))
+
+        return angles
