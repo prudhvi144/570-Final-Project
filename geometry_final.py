@@ -507,13 +507,13 @@ def clip(val, threshold):
     return val
 
 
-def field_plot_threshold(f_handle, threshold=10, nb_grid=160):
+def field_plot_threshold(f_handle, threshold=10, nb_grid=40):
     """
     The function evaluates the function  f_handle on points placed on a regular grid.
     """
 
-    xx_grid = np.linspace(-11, 11, nb_grid)
-    yy_grid = np.linspace(-11, 11, nb_grid)
+    xx_grid = np.linspace(-6, 6, nb_grid)
+    yy_grid = np.linspace(-6, 6, nb_grid)
     grid = Grid(xx_grid, yy_grid)
 
     f_handle_clip = lambda val: clip(f_handle(val), threshold)

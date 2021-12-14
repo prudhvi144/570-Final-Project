@@ -70,7 +70,7 @@ class Neckbrace:
 
             ax.view_init(elev=elevation, azim=azimuth)
             plt.savefig(filename)
-            plt.cla()
+            # plt.cla()
 
         with imageio.get_writer(output_file, mode='I') as writer:
             for name in filenames:

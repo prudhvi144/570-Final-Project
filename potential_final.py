@@ -353,8 +353,6 @@ class Planner:
 
             if np.linalg.norm(u_eval) < 0.0005:
                 break
-        print(u_path)
-        print(x_path)
         return x_path, u_path
 
     def run_plot(self):
@@ -393,6 +391,7 @@ class Planner:
             p1 = Planner()
             x_path, u_path = p1.run(p.x_start[:, i], planned_parameters)
             x_path = x_path.T
+            print(x_path)
             plt.subplot(1, 2, 1)
             plt.plot(x_path[0], x_path[1])
             plt.subplot(1, 2, 2)
@@ -426,6 +425,5 @@ if __name__ == '__main__':
         sphere = gm.Sphere(sphere.center, sphere.radius,
                            sphere.distance_influence)
         f_handle = lambda x: p2.eval(x.T[0])
-        gm.field_plot_threshold(f_handle, 100)
+        gm.field_plot_threshold(f_handle, 10)
 
-    plt.show()
