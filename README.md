@@ -1,6 +1,9 @@
 # 570-Final-Project
+
 System Requirements
 Linux (Tested on Ubuntu 18.04.05)/ Windows
+
+
 
 Python (Tested with v3.7)
 Python Requirements
@@ -9,6 +12,9 @@ Matplotlib 3.0.0
 NumPy 1.15.2
 imageio
 math
+
+
+
 
 
 There are different sphereworld that are in the root folder, with different excersises the patient has to perform.
