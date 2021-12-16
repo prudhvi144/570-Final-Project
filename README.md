@@ -3,8 +3,6 @@
 System Requirements
 Linux (Tested on Ubuntu 18.04.05)/ Windows
 
-
-
 Python (Tested with v3.7)
 Python Requirements
 SciPy 1.1.0
