@@ -50,6 +50,6 @@ class Plate:
         # vector starting from origin of top plate
         ax.quiver([0], [0], [self.height], [self.normal_vec[0, 0]],
                   [self.normal_vec[1, 0]], [self.normal_vec[2, 0]],
-                  length=6,
-                  color='k',
+                  length=10,
+                  color='g',
                   linewidth=2)

@@ -47,7 +47,7 @@ class Neckbrace:
         assert len(link_angles) > 0, 'Number of links must be greater than 0'
 
     def animate(self, angles: np.ndarray, output_file: str, azimuth: float,
-                elevation: float) -> None:
+                elevation: float,x,y,z) -> None:
         filenames = []
         frame = 0
         for angle in angles.T:
@@ -69,8 +69,11 @@ class Neckbrace:
             self.plot(angle)
 
             ax.view_init(elev=elevation, azim=azimuth)
+            ax.plot3D(x, y, z, 'gray')
             plt.savefig(filename)
-            # plt.cla()
+            plt.cla()
+
+
 
         with imageio.get_writer(output_file, mode='I') as writer:
             for name in filenames:
@@ -79,6 +82,32 @@ class Neckbrace:
 
         for name in filenames:
             remove(name)
+
+    def animate1(self, angles: np.ndarray, output_file: str, azimuth: float,
+                elevation: float,x,y,z) -> None:
+        filenames = []
+        frame = 0
+        for angle in angles.T:
+            filename = f"./figures/{frame}.png"
+            frame += 1
+            filenames.append(filename)
+
+            ax = plt.gca()
+            ax.set_xlim3d(xmin=-7, xmax=7)
+            ax.set_xlabel("X", fontsize=20)
+
+            ax.set_ylim3d(ymin=-7, ymax=7)
+            ax.set_ylabel("Y", fontsize=20)
+
+            ax.set_zlim3d(zmin=0, zmax=14)
+            ax.set_zlabel("Z", fontsize=20)
+
+            angle = angle.reshape(-1, 1)
+            self.plot(angle)
+
+            ax.view_init(elev=elevation, azim=azimuth)
+            ax.plot3D(x, y, z, 'r')
+
 
     def perform_exercise(type: str) -> None:
         """

@@ -20,7 +20,7 @@ class SphereWorld:
      -  x_goal, a [2 x nb_goal] vector containing the coordinates of different goal locations (one
     for each column).
         """
-        data = scio.loadmat('sphereWorld.mat')
+        data = scio.loadmat('sphereWorld6.mat')
 
         self.world = []
         for sphere_args in np.reshape(data['world'], (-1, )):
@@ -369,7 +369,7 @@ class Planner:
     first subplot; in a second subplot, show  u_path (using the same color and using the  semilogy
     command).
         """
-        data = scio.loadmat('sphereWorld.mat')
+        data = scio.loadmat('sphereWorld6.mat')
 
         self.world = []
 
