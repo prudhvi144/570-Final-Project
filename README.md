@@ -5,10 +5,8 @@ Linux (Tested on Ubuntu 18.04.05)/ Windows
 Python (Tested with v3.7)
 Python Requirements
 SciPy 1.1.0
-opencv-python 4.2.0.34
 Matplotlib 3.0.0
 NumPy 1.15.2
-TensorFlow 1.10.0 (For TensorBoard)
 imageio
 math
 
